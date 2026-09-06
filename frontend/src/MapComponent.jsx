@@ -28,21 +28,21 @@ const alertIcon = new L.DivIcon({
   popupAnchor: [0, -32],
 });
 
-// Approximate oil slick polygon centered around 18.95, 72.75
+// Approximate oil slick polygon centered around -10.0, -30.0 (Brazil)
 const slickPolygon = [
-  [18.96, 72.74],
-  [18.96, 72.76],
-  [18.94, 72.77],
-  [18.93, 72.75],
-  [18.94, 72.74],
+  [-9.9, -30.1],
+  [-9.9, -29.9],
+  [-10.1, -29.9],
+  [-10.2, -30.0],
+  [-10.1, -30.1],
 ];
 
 const MapComponent = ({ shipsData }) => {
-  // Center roughly off the coast of Mumbai
-  const mapCenter = [18.95, 72.85];
+  // Center off the coast of Paraíba, Brazil
+  const mapCenter = [-10.0, -32.0];
 
   return (
-    <MapContainer center={mapCenter} zoom={11} className="leaflet-container">
+    <MapContainer center={mapCenter} zoom={7} className="leaflet-container">
       {/* Standard OSM tile layer, dark mode is applied via CSS filter */}
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -57,16 +57,16 @@ const MapComponent = ({ shipsData }) => {
         <Popup>
            <div style={{ color: '#1e293b' }}>
               <strong>Zenodo Inference</strong><br/>
-              Detected Oil Slick
+              Detected Oil Slick (Brazil)
            </div>
         </Popup>
       </Polygon>
 
-      {/* Backward Drift Path */}
+      {/* Backward Drift Path (Simulating currents carrying oil West/Northwest) */}
       <Polyline
         positions={[
-          [18.95, 72.75], // Slick center
-          [19.05, 72.85]  // North-East drift direction
+          [-10.0, -30.0], // Slick center
+          [-11.0, -28.0]  // Southeast drift origin (since oil drifted NW, origin is SE)
         ]}
         pathOptions={{ color: '#f59e0b', weight: 3, dashArray: '10, 10' }}
       >

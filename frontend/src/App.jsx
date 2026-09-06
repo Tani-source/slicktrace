@@ -9,7 +9,8 @@ function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/vessels')
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+    fetch(`${apiUrl}/vessels`)
       .then(res => {
         if (!res.ok) throw new Error("Failed to fetch data");
         return res.json();

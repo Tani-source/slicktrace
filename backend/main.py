@@ -16,11 +16,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'ais_mock_data.csv')
+DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'bouboulina_ais.csv')
 
-# Oil slick origin coordinate
-SLICK_LAT = 18.95
-SLICK_LON = 72.75
+# Oil slick origin coordinate (Brazil, approximate)
+SLICK_LAT = -10.0
+SLICK_LON = -30.0
 slick_point = Point(SLICK_LON, SLICK_LAT)
 
 def calculate_distance(lat, lon):
