@@ -3,3 +3,7 @@ numpy
 fastapi
 uvicorn
 shapely
+opendrift
+geopandas
+rasterio
+netCDF4

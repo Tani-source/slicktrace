@@ -1,0 +1,15 @@
+name: slicktrace
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - opendrift
+  - geopandas
+  - rasterio
+  - netcdf4
+  - fastapi
+  - uvicorn
+  - shapely
+  - pandas
+  - numpy
