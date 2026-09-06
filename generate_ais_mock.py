@@ -22,10 +22,19 @@ def generate_ais_data():
         v_lat = np.random.uniform(-0.003, 0.003)
         v_lon = np.random.uniform(-0.003, 0.003)
         
+        curr_lat = start_lat
+        curr_lon = start_lon
+        
         for step, ts in enumerate(timestamps):
-            lat = start_lat + v_lat * step
-            lon = start_lon + v_lon * step
-            records.append({'mmsi': mmsi, 'timestamp': ts, 'lat': lat, 'lon': lon})
+            curr_lat += v_lat
+            curr_lon += v_lon
+            
+            # Simple collision detection with the coast (approx longitude 72.75 is safe water)
+            if curr_lon > 72.75:
+                curr_lon = 72.75
+                v_lon = -abs(v_lon) # Bounce back West away from the coast
+                
+            records.append({'mmsi': mmsi, 'timestamp': ts, 'lat': curr_lat, 'lon': curr_lon})
             
     # Dark Ship (MMSI: 999999999)
     dark_mmsi = 999999999
