@@ -53,7 +53,75 @@
 .main-content {
   flex: 1;
   display: flex;
-  min-height: 0; /* Important for flex child to not overflow */
+  min-height: 0;
+  gap: 1rem;
+}
+
+.side-panel {
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  overflow-y: auto;
+  gap: 1rem;
+  z-index: 10;
+}
+
+.side-panel h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+}
+
+.export-btn {
+  background-color: var(--accent-color);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.export-btn:hover {
+  background-color: #0ea5e9;
+}
+
+.suspect-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.suspect-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.suspect-card.high-risk {
+  border-color: var(--danger-color);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.suspect-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.suspect-score {
+  font-size: 0.9rem;
+  color: #94a3b8;
 }
 
 .map-wrapper {

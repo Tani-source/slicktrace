@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
+import numpy as np
 import os
+from shapely.geometry import Point
 
 app = FastAPI(title="SlickTrace API")
 
@@ -16,7 +18,16 @@ app.add_middleware(
 
 DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'ais_mock_data.csv')
 
-@app.get("/api/ships")
+# Oil slick origin coordinate
+SLICK_LAT = 18.95
+SLICK_LON = 72.75
+slick_point = Point(SLICK_LON, SLICK_LAT)
+
+def calculate_distance(lat, lon):
+    # Euclidean distance in degrees for prototype scale
+    return slick_point.distance(Point(lon, lat))
+
+@app.get("/vessels")
 def get_ships_data():
     if not os.path.exists(DATA_PATH):
         return {"error": "Data file not found"}
@@ -33,12 +44,22 @@ def get_ships_data():
     results = []
     
     for mmsi, group in df.groupby('mmsi'):
-        # Check if any gap > 60 mins
+        # 1. Time blackout gap score (40% weight)
         max_gap = group['time_diff'].max()
-        is_dark_ship = pd.notna(max_gap) and max_gap > 60
+        gap_minutes = float(max_gap) if pd.notna(max_gap) else 0.0
+        # Normalize gap (e.g. 180 mins is max score 1.0)
+        gap_score = min(1.0, gap_minutes / 180.0)
         
-        # Assign a high anomaly score if flagged as a dark ship
-        anomaly_score = 0.95 if is_dark_ship else 0.1
+        # 2. Minimum distance to the oil slick origin coordinate (60% weight)
+        min_dist = group.apply(lambda row: calculate_distance(row['lat'], row['lon']), axis=1).min()
+        # Normalize distance (e.g. 0 degrees is max score 1.0, >0.15 degrees is 0)
+        dist_score = max(0.0, 1.0 - (min_dist / 0.15))
+        
+        # Composite suspect confidence score
+        suspect_confidence_score = (0.4 * gap_score) + (0.6 * dist_score)
+        
+        # Flag as dark ship if score is high enough
+        is_dark_ship = suspect_confidence_score > 0.5
         
         # Get all coordinates
         coordinates = group[['lat', 'lon', 'timestamp']].to_dict(orient='records')
@@ -50,9 +71,14 @@ def get_ships_data():
         results.append({
             "mmsi": int(mmsi),
             "is_dark_ship": bool(is_dark_ship),
-            "anomaly_score": anomaly_score,
-            "max_gap_minutes": float(max_gap) if pd.notna(max_gap) else 0.0,
+            "anomaly_score": suspect_confidence_score, # kept for frontend backward compatibility
+            "suspect_confidence_score": suspect_confidence_score,
+            "max_gap_minutes": gap_minutes,
+            "min_distance_to_slick": float(min_dist),
             "track": coordinates
         })
+        
+    # Return an array of sorted suspect objects ordered by overall risk score
+    results.sort(key=lambda x: x['suspect_confidence_score'], reverse=True)
         
     return {"ships": results}

@@ -62,6 +62,22 @@ const MapComponent = ({ shipsData }) => {
         </Popup>
       </Polygon>
 
+      {/* Backward Drift Path */}
+      <Polyline
+        positions={[
+          [18.95, 72.75], // Slick center
+          [19.05, 72.85]  // North-East drift direction
+        ]}
+        pathOptions={{ color: '#f59e0b', weight: 3, dashArray: '10, 10' }}
+      >
+        <Popup>
+           <div style={{ color: '#1e293b' }}>
+              <strong>Backward Drift Path</strong><br/>
+              Simulated ocean current origin
+           </div>
+        </Popup>
+      </Polyline>
+
       {/* Ship Tracks */}
       {shipsData.map((ship) => {
         const positions = ship.track.map(t => [t.lat, t.lon]);
