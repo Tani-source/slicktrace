@@ -4,34 +4,42 @@ import { Ship, Download } from 'lucide-react';
 import './App.css';
 
 function App() {
-  const [shipsData, setShipsData] = useState(null);
+  const [simulationData, setSimulationData] = useState(null);
+  const [suspectsData, setSuspectsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-    fetch(`${apiUrl}/vessels`)
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch data");
+    
+    Promise.all([
+      fetch(`${apiUrl}/api/simulation`).then(res => {
+        if (!res.ok) throw new Error("Failed to fetch simulation");
+        return res.json();
+      }),
+      fetch(`${apiUrl}/api/suspects`).then(res => {
+        if (!res.ok) throw new Error("Failed to fetch suspects");
         return res.json();
       })
-      .then(data => {
-        setShipsData(data.ships);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setError("Failed to load ship data.");
-        setLoading(false);
-      });
+    ])
+    .then(([simData, suspectsRes]) => {
+      setSimulationData(simData);
+      setSuspectsData(suspectsRes.ships);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error(err);
+      setError("Failed to load forensic data.");
+      setLoading(false);
+    });
   }, []);
 
-  const totalShips = shipsData ? shipsData.length : 0;
-  const darkShips = shipsData ? shipsData.filter(s => s.is_dark_ship).length : 0;
+  const totalShips = suspectsData ? suspectsData.length : 0;
+  const darkShips = suspectsData ? suspectsData.filter(s => s.is_dark_ship).length : 0;
 
   const exportDossier = () => {
-    if (!shipsData || shipsData.length === 0) return;
-    const topSuspect = shipsData[0];
+    if (!suspectsData || suspectsData.length === 0) return;
+    const topSuspect = suspectsData[0];
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(topSuspect, null, 2));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
@@ -44,14 +52,9 @@ function App() {
   return (
     <div className="app-container">
       <header className="header glass">
-        <div>
-          <h1 className="title">
-            <Ship /> SlickTrace Dashboard
-          </h1>
-          <span style={{ fontSize: '0.85rem', color: '#94a3b8', marginLeft: '2.2rem' }}>
-            Case Study: 2019 Brazil Coast Mystery Oil Spill ("Bouboulina")
-          </span>
-        </div>
+        <h1 className="title">
+          <Ship /> SlickTrace Forensics
+        </h1>
         <div className="stats">
           <div className="stat-item">
             <span className="stat-value">{totalShips}</span>
@@ -59,7 +62,7 @@ function App() {
           </div>
           <div className="stat-item">
             <span className="stat-value danger">{darkShips}</span>
-            <span className="stat-label">Anomalies Flagged</span>
+            <span className="stat-label">Anomalies Detected</span>
           </div>
         </div>
       </header>
@@ -72,15 +75,14 @@ function App() {
           </button>
           
           <div className="suspect-list">
-            {shipsData && shipsData.map((ship, index) => (
+            {suspectsData && suspectsData.map((ship, index) => (
               <div key={ship.mmsi} className={`suspect-card ${ship.is_dark_ship ? 'high-risk' : ''}`}>
                 <div className="suspect-title">
-                  <span>#{index + 1} {ship.vessel_name || `MMSI: ${ship.mmsi}`}</span>
+                  <span>#{index + 1} {ship.name} (MMSI: {ship.mmsi})</span>
                   {ship.is_dark_ship && <span className="danger">⚠ ALERT</span>}
                 </div>
-                <div className="suspect-score" style={{ fontSize: '0.75rem', color: '#64748b' }}>MMSI: {ship.mmsi}</div>
-                <div className="suspect-score">Confidence Score: {(ship.suspect_confidence_score * 100).toFixed(1)}%</div>
-                <div className="suspect-score">Max Blackout Gap: {ship.max_gap_minutes.toFixed(1)}m</div>
+                <div className="suspect-score">Score: {(ship.suspect_confidence_score * 100).toFixed(1)}%</div>
+                <div className="suspect-score">Max Gap: {ship.max_gap_minutes.toFixed(1)}m</div>
                 <div className="suspect-score">Slick Proximity: {ship.min_distance_to_slick.toFixed(3)}°</div>
               </div>
             ))}
@@ -88,9 +90,11 @@ function App() {
         </div>
         
         <div className="map-wrapper glass">
-          {loading && <div className="loading">Fetching Vessel Data...</div>}
+          {loading && <div className="loading">Fetching Geospatial Data...</div>}
           {error && <div className="error">{error}</div>}
-          {!loading && !error && shipsData && <MapComponent shipsData={shipsData} />}
+          {!loading && !error && simulationData && (
+              <MapComponent simulationData={simulationData} suspectsData={suspectsData} />
+          )}
         </div>
       </main>
     </div>
