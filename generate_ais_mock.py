@@ -14,9 +14,9 @@ def generate_ais_data():
     np.random.seed(42)
     for i in range(1, 11):
         mmsi = 100000000 + i
-        # Random start locations around Mumbai coast (approx Lat 18.9, Lon 72.8)
-        start_lat = np.random.uniform(18.8, 19.1)
-        start_lon = np.random.uniform(72.6, 73.0)
+        # Ensure start locations are strictly in the Arabian Sea (West of Mumbai)
+        start_lat = np.random.uniform(18.85, 19.05)
+        start_lon = np.random.uniform(72.5, 72.75)
         
         # Random constant velocity in degrees per step
         v_lat = np.random.uniform(-0.003, 0.003)
@@ -29,10 +29,10 @@ def generate_ais_data():
             
     # Dark Ship (MMSI: 999999999)
     dark_mmsi = 999999999
-    start_lat_dark = 18.8
-    start_lon_dark = 72.7
+    start_lat_dark = 18.85
+    start_lon_dark = 72.65
     spill_lat = 18.95
-    spill_lon = 72.85
+    spill_lon = 72.75
     
     # Timeline for dark ship:
     # 0 to 4 hours (48 steps): move towards spill zone

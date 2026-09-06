@@ -28,13 +28,13 @@ const alertIcon = new L.DivIcon({
   popupAnchor: [0, -32],
 });
 
-// Approximate oil slick polygon centered around 18.95, 72.85
+// Approximate oil slick polygon centered around 18.95, 72.75
 const slickPolygon = [
-  [18.96, 72.84],
-  [18.96, 72.86],
-  [18.94, 72.87],
-  [18.93, 72.85],
-  [18.94, 72.84],
+  [18.96, 72.74],
+  [18.96, 72.76],
+  [18.94, 72.77],
+  [18.93, 72.75],
+  [18.94, 72.74],
 ];
 
 const MapComponent = ({ shipsData }) => {
@@ -43,10 +43,10 @@ const MapComponent = ({ shipsData }) => {
 
   return (
     <MapContainer center={mapCenter} zoom={11} className="leaflet-container">
-      {/* Dark theme tile layer for premium aesthetic */}
+      {/* Standard OSM tile layer, dark mode is applied via CSS filter */}
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url='https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
       />
 
       {/* Static Black Polygon for Zenodo Oil Slick Inference */}
